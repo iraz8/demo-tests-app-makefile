@@ -1,31 +1,26 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
-LDFLAGS = -lcunit
+CFLAGS = -Wall -Wextra -std=c11
+LIBS = -lcunit
 
-SRC_DIR = .
-BUILD_DIR = build
-TEST_DIR = tests
+all: main
 
-SRC_FILES = $(SRC_DIR)/main.c
-TEST_FILES = $(SRC_DIR)/test_main.c
-EXEC = $(BUILD_DIR)/app
-TEST_EXEC = $(BUILD_DIR)/test_app
+main: main.o sum.o
+	$(CC) $(CFLAGS) -o main main.o sum.o
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+main.o: main.c sum.h
+	$(CC) $(CFLAGS) -c main.c
 
-$(EXEC): $(SRC_FILES) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) $^ -o $@
+sum.o: sum.c sum.h
+	$(CC) $(CFLAGS) -c sum.c
 
-$(TEST_EXEC): $(TEST_FILES) $(SRC_FILES) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+test: test_sum
+	./test_sum
 
-.PHONY: test
+test_sum: test_sum.o sum.o
+	$(CC) $(CFLAGS) -o test_sum test_sum.o sum.o $(LIBS)
 
-test: $(TEST_EXEC)
-	$(TEST_EXEC)
-
-.PHONY: clean
+test_sum.o: test_sum.c sum.h
+	$(CC) $(CFLAGS) -c test_sum.c
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -f *.o main test_sum
